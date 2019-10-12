@@ -24,17 +24,25 @@ class Board(object):
         next_position = (self.current_position + steps)%self.board_len
         return next_position
 
+    def goto(self, s):
+        return l.index(s)
+
     def take_cc(self, position):
         #returns new position tile
+        return self.board_tiles[position]
+
+    def take_ch(self, position):
+        #returns new position tile
+        return self.board_tiles[position]
 
     def take_action(self, position):
         tile = self.board_tiles[position]
         if tile == "G2J":
-            new_position = goto("JAIL")
+            new_position = self.goto("JAIL")
         if tile[0:2] == "CC":
-            new_position = goto(take_cc(position))
+            new_position = self.goto(self.take_cc(position))
         if tile[0:2] == "CH":
-            new_position = goto(take_ch(position))
+            new_position = self.goto(self.take_ch(position))
         return new_position
 
     def walk(self):
