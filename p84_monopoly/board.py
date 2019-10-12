@@ -16,6 +16,9 @@ class Board(object):
         next_position = (self.current_position + steps)%self.board_len
         return next_position
 
+    def take_action():
+        return self.current_position
+
     def walk(self):
         steps = Board.get_next_dice()
         self.current_position = self.get_next_position(steps)
