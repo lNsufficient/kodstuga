@@ -1,10 +1,10 @@
 import random
 
 class Board(object):
-    def __init__():
-        board_list = [0]*40
-        current_position = 0
-        board_len = len(board_list)
+    def __init__(self):
+        self.board_list = [0]*40
+        self.current_position = 0
+        self.board_len = len(self.board_list)
 
     @staticmethod
     def get_next_dice():
