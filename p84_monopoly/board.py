@@ -1,6 +1,18 @@
 import random
 import sys
 
+class Deck(object):
+    def __init__(self, nbr_cards, list_of_tiles):
+        self.nbr_cards = nbr_cards
+        self.a = list_of_tiles + [""]*(nbr_cards-len(list_of_tiles))
+        random.shuffle(self.a)
+        self.position = 0
+
+    def pop(self):
+        #We are ok with not starting with top card but second card
+        self.position = (self.position + 1)%self.nbr_cards
+        return self.a[self.position]
+
 class Board(object):
     def __init__(self):
         self.board_list = [0]*40
@@ -12,7 +24,9 @@ class Board(object):
                 "JAIL","C1","U1", "C2", "C3", "R2", "D1", "CC2", "D2", "D3", 
                 "FP", "E1", "CH2", "E2", "E3", "R3", "F1", "F2", "U2", "F3",
                 "G2J", "G1", "G2", "CC3", "G3", "R4", "CH3", "H1", "T2", "H2"
-                ]                
+                ]
+        self.cc_deck = Deck(16, ["JAIL", "GO"])
+        self.ch_deck = Deck(16, ["GO", "JAIL", "C1", "E3", "H2", "R1", "NEXTR", "NEXTR", "NEXTU", "BACK3"])
 
     @staticmethod
     def get_next_dice():
@@ -25,32 +39,38 @@ class Board(object):
         return next_position
 
     def goto(self, s):
-        return self.board_tiles.index(s)
-
-    def take_cc(self, position):
-        #returns new position tile
-        return self.board_tiles[position]
-
-    def take_ch(self, position):
-        #returns new position tile
-        return self.board_tiles[position]
-
-    def take_action(self, position):
-        tile = self.board_tiles[position]
-        if tile == "G2J":
-            new_position = self.goto("JAIL")
-        elif tile[0:2] == "CC":
-            new_position = self.goto(self.take_cc(position))
-        elif tile[0:2] == "CH":
-            new_position = self.goto(self.take_ch(position))
+        if s == "":
+            new_position = self.current_position
         else:
-            new_position = position
-        return new_position
+            new_position = self.board_tiles.index(s)
+        self.current_position = new_position
+
+    def take_cc(self):
+        #returns new position tile
+        new_tile = self.cc_deck.pop()
+        return new_tile
+
+    def take_ch(self):
+        #returns new position tile
+        new_tile = ""
+        return new_tile
+
+    def take_action(self):
+        tile = self.board_tiles[self.current_position]
+        if tile == "G2J":
+            new_tile = "JAIL"
+        elif tile[0:2] == "CC":
+            new_tile = (self.take_cc())
+        elif tile[0:2] == "CH":
+            new_tile = (self.take_ch())
+        else:
+            new_tile = tile
+        self.goto(new_tile)
 
     def walk(self):
         steps = Board.get_next_dice()
         self.current_position = self.get_next_position(steps)
-        self.current_position = self.take_action(self.current_position)
+        self.take_action()
         self.board_list[self.current_position] = self.board_list[self.current_position] + 1
         self.round += 1
 
