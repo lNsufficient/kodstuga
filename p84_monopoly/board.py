@@ -25,7 +25,7 @@ class Board(object):
         return next_position
 
     def goto(self, s):
-        return l.index(s)
+        return self.board_tiles.index(s)
 
     def take_cc(self, position):
         #returns new position tile
@@ -39,23 +39,29 @@ class Board(object):
         tile = self.board_tiles[position]
         if tile == "G2J":
             new_position = self.goto("JAIL")
-        if tile[0:2] == "CC":
+        elif tile[0:2] == "CC":
             new_position = self.goto(self.take_cc(position))
-        if tile[0:2] == "CH":
+        elif tile[0:2] == "CH":
             new_position = self.goto(self.take_ch(position))
+        else:
+            new_position = position
         return new_position
 
     def walk(self):
         steps = Board.get_next_dice()
         self.current_position = self.get_next_position(steps)
-        self.current_position = self.take_action()
+        self.current_position = self.take_action(self.current_position)
         self.board_list[self.current_position] = self.board_list[self.current_position] + 1
         self.round += 1
 
     def __str__(self):
         rep = "Board status\n"
         l = [e/self.round for e in self.board_list]
-        rep += str(l)
+        tuple_list = zip(self.board_tiles, l)
+        for i, t in enumerate(tuple_list):
+            if i%10==1:
+                rep += '\n'
+            rep += str(t)
         return rep
 
 if __name__ == "__main__":
