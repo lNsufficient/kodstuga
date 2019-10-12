@@ -27,12 +27,24 @@ class Board(object):
                 ]
         self.cc_deck = Deck(16, ["JAIL", "GO"])
         self.ch_deck = Deck(16, ["GO", "JAIL", "C1", "E3", "H2", "R1", "NEXTR", "NEXTR", "NEXTU", "BACK3"])
+        self.double_count = 0
 
     @staticmethod
-    def get_next_dice():
+    def roll_dice():
         d1 = random.randint(1, 6)
         d2 = random.randint(1, 6)
-        return d1+d2   
+        return d1, d2
+
+    def get_next_dice(self):
+        d1, d2 = Board.roll_dice()
+        steps = d1 + d2
+        if (d1 == d2):
+            self.double_count += 1
+            if self.double_count > 2:
+                return -1
+        else:
+            self.double_count = 0
+        return steps   
 
     def get_next_position(self, steps):
         next_position = (self.current_position + steps)%self.board_len
@@ -41,9 +53,27 @@ class Board(object):
     def goto(self, s):
         if s == "":
             new_position = self.current_position
+        elif s == "NEXTR":
+            new_position = self.get_next_('R')
+        elif s == "NEXTU":
+            new_position = self.get_next_('U')
+        elif s == "BACK3":
+            new_position = ((self.current_position - 3)+self.board_len)%self.board_len
         else:
             new_position = self.board_tiles.index(s)
         self.current_position = new_position
+    
+    def get_positions_starting_w(self, s):
+        return [e for e in range(self.board_len) if self.board_tiles[e][0] == s] 
+ 
+    def get_next_(self, S):
+        v = self.get_positions_starting_w(S)
+        new_pos_v = [e for e in v if e < self.current_position]
+        if len(new_pos_v) == 0:
+            new_pos = v[0]
+        else:
+            new_pos = new_pos_v[0]
+        return new_pos
 
     def take_cc(self):
         #returns new position tile
@@ -52,7 +82,7 @@ class Board(object):
 
     def take_ch(self):
         #returns new position tile
-        new_tile = ""
+        new_tile = self.ch_deck.pop()
         return new_tile
 
     def take_action(self):
@@ -68,9 +98,12 @@ class Board(object):
         self.goto(new_tile)
 
     def walk(self):
-        steps = Board.get_next_dice()
-        self.current_position = self.get_next_position(steps)
-        self.take_action()
+        steps = self.get_next_dice()
+        if steps == -1:
+            self.goto("JAIL")
+        else:
+            self.current_position = self.get_next_position(steps)
+            self.take_action()
         self.board_list[self.current_position] = self.board_list[self.current_position] + 1
         self.round += 1
 
