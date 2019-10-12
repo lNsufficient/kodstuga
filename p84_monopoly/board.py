@@ -41,6 +41,7 @@ class Board(object):
         if (d1 == d2):
             self.double_count += 1
             if self.double_count > 2:
+                self.double_count = 0
                 return -1
         else:
             self.double_count = 0
@@ -68,7 +69,7 @@ class Board(object):
  
     def get_next_(self, S):
         v = self.get_positions_starting_w(S)
-        new_pos_v = [e for e in v if e < self.current_position]
+        new_pos_v = [e for e in v if self.current_position < e]
         if len(new_pos_v) == 0:
             new_pos = v[0]
         else:
